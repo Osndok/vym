@@ -1999,9 +1999,18 @@ void Main::setupFormatActions()
     a->setChecked (true);
     restrictedMapActions.append( a );
     formatMenu->addAction (a);
-    formatMenu->addSeparator();
     connect( a, SIGNAL( triggered() ), this, SLOT( formatLinkStylePolyParabel() ) );
     actionFormatLinkStylePolyParabel=a;
+
+    a= new QAction( tr( "Linkstyle Triangular" ), actionGroupFormatLinkStyles);
+    a->setCheckable(true);
+    a->setChecked (true);
+    restrictedMapActions.append( a );
+    formatMenu->addAction (a);
+    connect( a, SIGNAL( triggered() ), this, SLOT( formatLinkStyleTriangular() ) );
+    actionFormatLinkStyleTriangular=a;
+
+    formatMenu->addSeparator();
 
     a = new QAction( tr( "Hide link if object is not selected","Branch attribute" ), this);
     a->setCheckable(true);
@@ -4908,6 +4917,16 @@ void Main::formatLinkStylePolyParabel()
     {
 	m->setMapLinkStyle("StylePolyParabel");
         actionFormatLinkStylePolyParabel->setChecked(true);
+    }
+}
+
+void Main::formatLinkStyleTriangular()
+{
+    VymModel *m=currentModel();
+    if (m)
+    {
+	m->setMapLinkStyle("StyleTriangular");
+        actionFormatLinkStyleTriangular->setChecked(true);
     }
 }
 

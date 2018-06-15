@@ -272,6 +272,9 @@ QString VymModel::saveToDir(const QString &tmpdir, const QString &prefix, bool w
 	case LinkableMapObj::PolyLine:	
 	    ls="StylePolyLine";
 	    break;
+    case LinkableMapObj::Triangular:
+	    ls="StyleTriangular";
+	    break;
 	default:
 	    ls="StylePolyParabel";
 	    break;
@@ -4853,6 +4856,9 @@ bool VymModel::setMapLinkStyle (const QString & s)
 	case LinkableMapObj::PolyParabel:
 	    snow="StylePolyParabel";
 	    break;
+    case LinkableMapObj::Triangular:
+	    snow="StyleTriangular";
+	    break;
 	default:    
 	    return false;
 	    break;
@@ -4872,6 +4878,8 @@ bool VymModel::setMapLinkStyle (const QString & s)
 	linkstyle=LinkableMapObj::PolyLine;
     else if (s=="StylePolyParabel") 
 	linkstyle=LinkableMapObj::PolyParabel;
+    else if (s=="StyleTriangular")
+	linkstyle=LinkableMapObj::Triangular;
     else
 	linkstyle=LinkableMapObj::UndefinedStyle;
 

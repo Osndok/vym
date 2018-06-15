@@ -74,6 +74,13 @@ void LinkableMapObj::delLink()
     }	
     switch (style)
     {
+    /*
+    NB: The 'Triangular' linkstyle does not really intend to draw individual links
+    (but instead one large triangular brace), however that ends up looking really
+    weird during drag operations & free-position, so we *also* draw a line (which is
+    a fast link method too).
+    */
+    case Triangular:
 	case Line:
 	    delete (l);
 	    break;
@@ -205,6 +212,9 @@ LinkableMapObj::Style LinkableMapObj::getDefLinkStyle (TreeItem *parent)
 	    else    
 		return ls;
 	    break;
+    case Triangular:
+        return ls;
+        break;
 	default: 
 	    break;  
     }	
@@ -222,6 +232,7 @@ void LinkableMapObj::setLinkStyle(Style newstyle)
     QGraphicsLineItem *cl;
     switch (style)
     {
+    case Triangular:
 	case Line: 
 	    l = scene()->addLine(QLineF(1,1,1,1),pen);
 	    l->setZValue(dZ_LINK);
@@ -303,6 +314,7 @@ void LinkableMapObj::setLinkColor(QColor col)
     if (bottomline) bottomline->setPen( pen );
     switch (style)
     {
+    case Triangular:
 	case Line:
 	    l->setPen( pen);
 	    break;  
@@ -375,6 +387,7 @@ void LinkableMapObj::updateVisibility()
 
 	switch (style)
 	{
+        case Triangular:
 	    case Line:
 		if (l) l->show();
 		break;
@@ -402,6 +415,7 @@ void LinkableMapObj::updateVisibility()
 	if (bottomline) bottomline->hide();
 	switch (style)
 	{
+        case Triangular:
 	    case Line:
 		if (l) l->hide();
 		break;
@@ -503,6 +517,15 @@ void LinkableMapObj::updateLinkGeometry()
     // Draw the link
     switch (style)
     {
+    case Triangular:
+        //NB: *Very* similar to the "Line" style, except that we terminate at the near side of the triangular brace.
+        //TODO: It would be neat to somehow use the y position for the line, but confined between the braces max & min y values.
+        l->setLine( QLine(qRound(parPos.x()),
+                          qRound(parPos.y()),
+                          qRound(p2x+linkwidth),
+                          qRound(p2y) ));
+        l->setZValue (z);
+        break;
     case Line:
         l->setLine( QLine(qRound (parPos.x()),
                           qRound(parPos.y()),

@@ -244,6 +244,7 @@ private slots:
     void formatLinkStyleParabel();
     void formatLinkStylePolyLine();
     void formatLinkStylePolyParabel();
+    void formatLinkStyleTriangular();
     void formatSelectBackColor();
     void formatSelectBackImage();
     void formatSelectLinkColor();
@@ -523,6 +524,7 @@ private:
     QAction *actionFormatLinkStyleParabel;
     QAction *actionFormatLinkStylePolyLine;
     QAction *actionFormatLinkStylePolyParabel;
+    QAction *actionFormatLinkStyleTriangular;
     QAction *actionFormatHideLinkUnselected;
 
     QAction *actionViewToggleNoteEditor;

@@ -31,7 +31,8 @@ public:
         Line,		//!< Straight line
         Parabel,	//!< Parabel
         PolyLine,	//!< Polygon (thick line)
-        PolyParabel	//!< Thick parabel
+        PolyParabel,//!< Thick parabel
+        Triangular  //!< One large "brace-like" triangular wedge
     };
 
     /*! Vertical position of link in object */
