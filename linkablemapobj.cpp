@@ -74,13 +74,10 @@ void LinkableMapObj::delLink()
     }	
     switch (style)
     {
-    /*
-    NB: The 'Triangular' linkstyle does not really intend to draw individual links
-    (but instead one large triangular brace), however that ends up looking really
-    weird during drag operations & free-position, so we *also* draw a line (which is
-    a fast link method too).
-    */
     case Triangular:
+        delete (l);
+        delete (p);
+        break;
 	case Line:
 	    delete (l);
 	    break;
@@ -233,6 +230,24 @@ void LinkableMapObj::setLinkStyle(Style newstyle)
     switch (style)
     {
     case Triangular:
+        //We need a line (for our link) *AND* a polygon (to brace our children)
+	    l = scene()->addLine(QLineF(1,1,1,1),pen);
+	    l->setZValue(dZ_LINK);
+	    if (visible)
+		l->show();
+	    else
+		l->hide();
+
+        p =scene()->addPolygon(QPolygonF(),pen,linkcolor);
+	    p->setZValue(dZ_LINK);
+        p->setBrush( Qt::NoBrush );
+	    if (visible)
+		p->show();
+	    else
+		p->hide();
+	    pa0.resize (5);
+        createBottomLine();
+        break;
 	case Line: 
 	    l = scene()->addLine(QLineF(1,1,1,1),pen);
 	    l->setZValue(dZ_LINK);
@@ -315,6 +330,10 @@ void LinkableMapObj::setLinkColor(QColor col)
     switch (style)
     {
     case Triangular:
+        l->setPen( pen);
+        p->setBrush( Qt::NoBrush );
+        p->setPen( pen);
+        break;
 	case Line:
 	    l->setPen( pen);
 	    break;  
@@ -469,19 +488,24 @@ void LinkableMapObj::updateLinkGeometry()
             break;
     }
     
-    double p2x, p2y;				// Set P2 Before setting
+    QPointF p2;
     if (!link2ParPos)
     {
-        p2x = QPointF( parObj->getChildRefPos() ).x();   // P1, we have to look at
-        p2y = QPointF( parObj->getChildRefPos() ).y();   // orientation
+        p2=QPointF(parObj->getChildRefPos());
     } else
     {
-        p2x = QPointF( parObj->getParPos() ).x();
-        p2y = QPointF( parObj->getParPos() ).y();
+        p2=QPointF(parObj->getParPos());
     }
+    
+    double p2x, p2y;				// Set P2 Before setting
+    p2x = p2.x();   // P1, we have to look at
+    p2y = p2.y();   // orientation
 
     setOrientation();
     setDockPos(); // Call overloaded method
+
+    //Must be called *after* setOrientation() [above]
+    double minusIfLeft=(orientation==LeftOfCenter?-1:1);
 
     double p1x = parPos.x();  // Link is drawn from P1 to P2
     double p1y = parPos.y();
@@ -518,13 +542,34 @@ void LinkableMapObj::updateLinkGeometry()
     switch (style)
     {
     case Triangular:
-        //NB: *Very* similar to the "Line" style, except that we terminate at the near side of the triangular brace.
+        //Initially similar to the "Line" style, except that we terminate at the near side of the triangular brace.
         //TODO: It would be neat to somehow use the y position for the line, but confined between the braces max & min y values.
         l->setLine( QLine(qRound(parPos.x()),
                           qRound(parPos.y()),
-                          qRound(p2x+linkwidth),
+                          qRound(p2x+(linkwidth*minusIfLeft)),
                           qRound(p2y) ));
         l->setZValue (z);
+
+        //But then, if we have any children, we must draw our triangular "brace" too.
+        pa0.clear();
+
+        //NB: The triangular brace is drawn from *our* child reference point to brace our children... if we have any, that is.
+        if (1) {
+            //TODO: FIXME (actually read child positions)
+            double yTopHighestChild=childRefPos.y()-40;
+            double yBottomLowestChild=childRefPos.y()+60;
+            double xHalfway=childRefPos.x()+(linkwidth/2*minusIfLeft);
+            double xComplete=childRefPos.x()+(linkwidth*minusIfLeft);
+            pa0 << QPointF (childRefPos);
+            pa0 << QPointF (xHalfway, yTopHighestChild);
+            pa0 << QPointF (xComplete, yTopHighestChild);
+            pa0 << QPointF (xComplete, yBottomLowestChild);
+            pa0 << QPointF (xHalfway, yBottomLowestChild);
+            pa0 << QPointF (childRefPos);
+        }
+
+        p->setPolygon(QPolygonF (pa0));
+        p->setZValue (z);
         break;
     case Line:
         l->setLine( QLine(qRound (parPos.x()),
