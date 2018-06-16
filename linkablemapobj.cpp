@@ -543,7 +543,7 @@ void LinkableMapObj::updateLinkGeometry()
     {
     case Triangular:
         //Initially similar to the "Line" style, except that we terminate at the near side of the triangular brace.
-        //TODO: It would be neat to somehow use the y position for the line, but confined between the braces max & min y values.
+        //TODO: It would be nice to use a per-child "attachment point" against the brace, which really only differs by y-value.
         l->setLine( QLine(qRound(parPos.x()),
                           qRound(parPos.y()),
                           qRound(p2x+(linkwidth*minusIfLeft)),
@@ -554,17 +554,20 @@ void LinkableMapObj::updateLinkGeometry()
         pa0.clear();
 
         //NB: The triangular brace is drawn from *our* child reference point to brace our children... if we have any, that is.
-        if (1) {
-            //TODO: FIXME (actually read child positions)
-            double yTopHighestChild=childRefPos.y()-40;
-            double yBottomLowestChild=childRefPos.y()+60;
+        if (treeItem->branchCount()) {
+            BranchObj *firstChild=treeItem->getBranchObjNum(0);
+            double yTopOfHighestChild=std::min(bbox.top(), firstChild->getBBoxHeading().top());
+
+            BranchObj *lastChild=treeItem->getBranchObjNum(treeItem->branchCount()-1);
+            double yBottomOfLowestChild=std::max(childRefPos.y(), lastChild->parPos.y() );
+
             double xHalfway=childRefPos.x()+(linkwidth/2*minusIfLeft);
             double xComplete=childRefPos.x()+(linkwidth*minusIfLeft);
             pa0 << QPointF (childRefPos);
-            pa0 << QPointF (xHalfway, yTopHighestChild);
-            pa0 << QPointF (xComplete, yTopHighestChild);
-            pa0 << QPointF (xComplete, yBottomLowestChild);
-            pa0 << QPointF (xHalfway, yBottomLowestChild);
+            pa0 << QPointF (xHalfway, yTopOfHighestChild);
+            pa0 << QPointF (xComplete, yTopOfHighestChild);
+            pa0 << QPointF (xComplete, yBottomOfLowestChild);
+            pa0 << QPointF (xHalfway, yBottomOfLowestChild);
             pa0 << QPointF (childRefPos);
         }
 
