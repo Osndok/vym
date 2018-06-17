@@ -27,8 +27,11 @@ void HeadingObj::init()
     textwidth=40;
     color=QColor ("black");
     font=QFont();
-    heading="";
-    angle=0;	
+    heading=" "; //<! NB: An empty string makes the getSize().height equal to zero, which messes up the layout mechanism.
+    angle=0;
+
+    textline.append (newLine(heading));
+    calcBBoxSize();
 }
 
 void HeadingObj::copy(HeadingObj *other)
@@ -122,6 +125,12 @@ qreal HeadingObj::getRotation()
 
 void HeadingObj::setText (QString s)  
 {
+    //NB: An empty string makes the getSize().height equal to zero, which messes up the layout mechanism; so we avoid it.
+    //The editor will strip it out if/when the user decides to edit it anyway.
+    if (s.isEmpty()) {
+        s=QString(" ");
+    }
+
     heading=s;
 
     // remove old textlines and prepare generating new ones
