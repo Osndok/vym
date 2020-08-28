@@ -283,6 +283,8 @@ ErrorCode zipDir ( QDir zipInputDir, QString zipName)
         err=Aborted;
 
     }
+
+    QByteArray result;
     while(zipProc->state()!=QProcess::NotRunning){
         zipProc->waitForReadyRead();
         result = zipProc->readAll();
@@ -412,6 +414,7 @@ File::ErrorCode unzipDir ( QDir zipOutputDir, QString zipName)
         err=Aborted;
     }
 
+    QByteArray result;
     while(zipProc->state()!=QProcess::NotRunning){
         zipProc->waitForReadyRead();
         result = zipProc->readAll();
